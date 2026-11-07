@@ -1,6 +1,6 @@
-"""NYC yellow taxi fare scenarios for the commute comparison MVP.
+"""Rough NYC yellow taxi fares for the commute comparison.
 
-This is a planning estimate, not a quote or guaranteed fare range.
+These are estimates, not real quotes.
 Official rates: https://www.nyc.gov/site/tlc/passengers/taxi-fare.page
 """
 
@@ -25,10 +25,9 @@ TLC_FARE_URL = "https://www.nyc.gov/site/tlc/passengers/taxi-fare.page"
 
 
 def get_time_surcharge(trip_time=None, is_holiday=False):
-    """Return the applicable overnight/rush-hour surcharge in dollars.
+    """Overnight or rush-hour surcharge in dollars.
 
-    `is_holiday` must be determined by the caller. The default assumes the
-    date is not a holiday; the fare response discloses that limitation.
+    We have no holiday calendar, so the caller has to pass is_holiday.
     """
     if trip_time is None:
         trip_time = datetime.now(NYC_TIMEZONE)
@@ -46,10 +45,9 @@ def get_time_surcharge(trip_time=None, is_holiday=False):
 
 
 def crosses_nys_congestion_zone(coordinates):
-    """Rough screening only; True means *possible*, None means unknown.
+    """True if the route might enter the zone, None if we can't tell.
 
-    Bounding-box checks cannot establish the actual Manhattan zone boundary.
-    Do not use the result to automatically apply the surcharge.
+    This is only a box around the zone, so don't add the surcharge based on it.
     """
     if not coordinates:
         return None
@@ -60,10 +58,9 @@ def crosses_nys_congestion_zone(coordinates):
 
 
 def crosses_mta_congestion_zone(coordinates):
-    """Rough screening only; True means *possible*, None means unknown.
+    """True if the route might enter the zone, None if we can't tell.
 
-    Cannot distinguish exempt roads such as the FDR/West Side Highway.
-    Do not use the result to automatically apply the toll.
+    It can't tell exempt roads like the FDR apart, so don't add the toll based on it.
     """
     if not coordinates:
         return None
@@ -81,31 +78,26 @@ def estimate_fare(
     trip_time=None,
     is_holiday=False,
 ):
-    """Return two illustrative standard-meter scenarios, never true bounds.
+    """Two rough fares: one billed all by distance, one with some slow traffic.
 
-    The routing provider supplies only aggregate distance and travel duration.
-    It does not reveal precisely when the meter switches between distance and
-    time increments. The slow-traffic scenario is a modeling assumption.
-    Congestion charges are included only when the caller explicitly asserts
-    their applicability; the approximate zone helpers do not verify them.
+    We only know the total distance and time, not when the meter would switch
+    between distance and time, so the 30% slow traffic is our own guess.
+    Congestion charges are only added if the caller turns them on.
     """
     for name, value in (("distance_m", distance_m), ("duration_seconds", duration_seconds)):
-        if isinstance(value, bool) or not isinstance(value, (int, float)):
-            raise ValueError(f"{name} must be a non-negative finite number")
-        if not math.isfinite(value) or value < 0:
+        if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value) or value < 0:
             raise ValueError(f"{name} must be a non-negative finite number")
 
     distance_miles = distance_m / METERS_PER_MILE
     duration_minutes = duration_seconds / 60
 
-    # Scenario 1: the entire route is billed by distance.
+    # First estimate: the whole trip is billed by distance.
     distance_fare = BASE_FARE + math.ceil(
         distance_miles / DISTANCE_PER_UNIT_MILES
     ) * RATE_PER_UNIT
 
-    # Scenario 2: assume 30% of modeled travel time occurs in slow traffic.
-    # The same fraction of distance is allocated to that interval so distance
-    # and slow-time increments are not both billed for the same interval.
+    # Second estimate: 30% of the trip is slow traffic, billed by time. We take 30%
+    # off the distance too, so that part isn't charged twice.
     slow_fraction = 0.30
     moving_miles = distance_miles * (1 - slow_fraction)
     slow_minutes = duration_minutes * slow_fraction

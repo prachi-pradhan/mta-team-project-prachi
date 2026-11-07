@@ -1,4 +1,4 @@
-// api.js — every call to the Flask backend lives here.
+// Every call to the Flask backend lives here.
 // The Vite dev server forwards "/api/..." to http://localhost:5001 (see vite.config.js).
 
 async function getJson(url) {
@@ -31,15 +31,14 @@ export const planTrip = (fromId, toId) =>
 export const getFastestRoute = (fromId, toId) =>
   getJson(`/api/route?from=${encodeURIComponent(fromId)}&to=${encodeURIComponent(toId)}`);
 
-// FR-04/FR-05: subway vs taxi vs walking for the same journey.
+// Subway vs taxi vs walking for the same trip.
 export const compareCommute = (fromId, toId) =>
   getJson(
     `/api/commute/compare?from=${encodeURIComponent(fromId)}&to=${encodeURIComponent(toId)}`
   );
 
-// FR-06: current conditions. The backend answers 503 with a usable body
-// ({ available: false, reason }) when the weather provider is down, so we read
-// the body instead of treating that as a hard failure.
+// Current weather. If Open-Meteo is down the backend sends a 503 that still has
+// { available: false, reason }, so we read it instead of throwing an error.
 export const getWeather = async (lat, lon) => {
   const response = await fetch(`/api/weather?lat=${lat}&lon=${lon}`);
   const data = await response.json();

@@ -1,4 +1,4 @@
-// Person 3: train arrival cards for the station you picked.
+// Train arrival cards for the station you picked.
 // Refreshes every 30 seconds so the minutes count down.
 
 import { useEffect, useState } from "react";

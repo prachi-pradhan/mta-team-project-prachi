@@ -1,4 +1,4 @@
-// Person 4: favorite stations and saved trips, kept in the browser's local storage.
+// Favorite stations and saved trips, kept in the browser's local storage.
 // Each logged-in user gets their own lists; everyone else shares a "guest" list.
 // (Later this could move to Firestore so favorites follow you between devices.)
 
@@ -24,7 +24,7 @@ function useStoredList(key) {
     try {
       localStorage.setItem(key, JSON.stringify(newList));
     } catch {
-      // Private browsing can block storage — the list just won't be remembered.
+      // Private browsing can block storage. The list just won't be remembered.
     }
   }
 

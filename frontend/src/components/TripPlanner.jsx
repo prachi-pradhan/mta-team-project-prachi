@@ -1,4 +1,4 @@
-// Person 4: trip planner — pick a start and a destination (or use the locate button for the
+// Trip planner: pick a start and a destination (or use the locate button for the
 // station nearest you) and see the next trains that get you there.
 
 import { useEffect, useState } from "react";
@@ -70,7 +70,7 @@ export default function TripPlanner({ from, to, onFromChange, onToChange, routeC
   const [walking, setWalking] = useState(null); // { distance_miles, total_eta_min, estimate_only }
   const [message, setMessage] = useState("");
 
-  // Once both stations are picked, find trips — and refresh every 30 seconds.
+  // Once both stations are picked, find trips and refresh every 30 seconds.
   useEffect(() => {
     setResult(null);
     if (!from || !to) return;
@@ -170,7 +170,7 @@ export default function TripPlanner({ from, to, onFromChange, onToChange, routeC
         <div className="mt-4 space-y-2">
           {result.walk && (
             <p className="flex items-center gap-1.5 text-sm text-gray-600">
-              <Footprints size={14} /> These stations are connected — just walk, no train needed.
+              <Footprints size={14} /> These stations are connected, so just walk. No train needed.
             </p>
           )}
           {!result.walk && result.options.length === 0 && (

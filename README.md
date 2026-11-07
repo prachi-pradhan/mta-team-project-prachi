@@ -6,63 +6,31 @@ A real-time NYC subway web app that finds your closest station, shows when your 
 
 ## Tech Stack
 
-| Tool | Purpose |
-|---|---|
-| Python + Flask | Backend API that serves clean subway data |
-| MTA GTFS-Realtime feeds | Live train positions, arrivals and service alerts |
-| MTA static GTFS + SQLite | Database of every station, line and track |
-| NY Open Data (MTA Subway Stations) | The borough of every station |
-| React + Vite | The website |
-| Leaflet + OpenStreetMap | The interactive live map |
-| Tailwind CSS + Lucide | Styling, dark mode and icons |
-| Open-Meteo | Current weather near a station |
-| openrouteservice | Real walking routes (optional; otherwise estimated from distance) |
-| Browser local storage | Saved stations and trips (no account needed) |
-| Dijkstra's algorithm (`backend/dijkstra.py`) | Fastest route on a graph built from the live trains |
-| pytest | Backend tests |
+- Backend: Python, Flask, SQLite
+- Frontend: React, Vite, Tailwind CSS, Lucide icons
+- Map: Leaflet with OpenStreetMap
+- Data: MTA GTFS-Realtime feeds and static GTFS, NY Open Data (station boroughs), Open-Meteo (weather)
+- Walking routes: openrouteservice (optional, otherwise estimated from distance)
+- Tests: pytest
 
 ## Features
 
-- **Plan a trip from where you are:** tap the GPS button and "From" fills in with your closest station, with a walking line to it on the map. Then type where you're going in "To".
-- **Smart station names:** type it how you say it ("25th street", "5th avenue", "union square"), or tap a station on the map. Every station shows its borough, so the six "86 St" stations are easy to tell apart.
-- **Live arrivals:** as soon as you pick a start, its next Uptown and Downtown trains show, in minutes
-- **Line status:** a colored dot under every train (Good Service, Delays, Suspended…), with a **Why?** button that shows the MTA's alert
-- **Fastest route (Dijkstra):** the quickest way from From to To with any number of transfers, drawn on the map
-- **Next trains:** the next departures from From to To, direct or with one transfer, plus how far the trip is on foot (miles and minutes)
-- **Saved:** keep favorite stations and trips (like your daily commute) and open them with one tap
-- **Live map:** every train updates every 10 seconds; moving trains glide to their next station and glow in their line color
-- **Line highlight:** tap a line to light it up and fade everything else
-- **Weather:** current conditions near your station, with cautions like "walking surfaces may be slippery"
-- **Dark mode and full-screen map**
+- Tap the GPS button to start from your closest station, with a walking line to it on the map. Then type where you're going.
+- Search stations the way you'd say them ("25th street", "union square") or tap one on the map. Every station shows its borough, so the six "86 St" stations are easy to tell apart.
+- See the next Uptown and Downtown trains at your station, and each line's status. The **Why?** button shows the MTA's alert.
+- Get the fastest route with any number of transfers (using Dijkstra's algorithm), plus the next departures and how far the trip is on foot.
+- Save favorite stations and trips, like your daily commute.
+- Watch every train move on the live map, which updates every 10 seconds. Tap a line to highlight it.
+- Check the weather near your station. There's also dark mode and a full-screen map.
 
 ## Architecture
 
-```
-┌──────────────────────────────────────────────────────────────┐
-│                                                              │
-│   [MTA live feeds]              [MTA static GTFS]            │
-│   trains · alerts               stations · lines · tracks    │
-│        ↓                        + NY Open Data boroughs      │
-│        ↓                               ↓                     │
-│        ↓                        [import_data.py]             │
-│        ↓                               ↓                     │
-│        ↓                         [subway.db SQLite]          │
-│        ↓                               ↓                     │
-│   [Flask backend :5001]  ←─────────────┘                     │
-│   (downloads feeds every 10 s, plans trips, walk estimates)  │
-│        ↓                                                     │
-│   JSON API  /api/arrivals  /api/status  /api/trip  ...       │
-│        ↓                                                     │
-│   [React website :5173]                                      │
-│   ┌────────────────────────┐   ┌──────────────────────────┐  │
-│   │ Live map (Leaflet)     │   │ Side panel               │  │
-│   │  - moving trains       │   │  - From / To with GPS    │  │
-│   │  - line highlight      │   │  - arrivals + status     │  │
-│   │  - your location       │   │  - trip + walk, saved    │  │
-│   └────────────────────────┘   └──────────────────────────┘  │
-│                                                              │
-└──────────────────────────────────────────────────────────────┘
-```
+The app has two parts:
+
+- `backend/` is a Flask server on port 5001. It downloads the MTA live feeds every 10 seconds, reads stations and track shapes from a SQLite database, and answers the website with JSON.
+- `frontend/` is a React website on port 5173. It shows the Leaflet map and the side panel (From/To, arrivals, status, saved trips).
+
+`import_data.py` builds the SQLite database once from the MTA static GTFS files and the NY Open Data borough list.
 
 ## Installation
 
@@ -167,13 +135,9 @@ On the website, Northbound and Southbound are shown as **Uptown** and **Downtown
 
 ## Troubleshooting
 
-| Problem | Fix |
-|---|---|
-| The map shows no trains | The backend isn't running. Start it in terminal 1. |
-| `Port 5001 is in use` | An old copy is running. Close its terminal, or on Mac/Linux run `lsof -ti :5001 \| xargs kill`. |
-| `cd: no such file or directory` | You're already in that folder. Run `pwd` to check. |
-| The GPS button does nothing | Allow location access in your browser (works on `localhost` and HTTPS). |
-| Something broke after `git pull` | Run `npm install` again in `frontend`. |
+- **The map shows no trains:** the backend isn't running. Start it in terminal 1.
+- **`Port 5001 is in use`:** an old copy is still running. Close its terminal, or on Mac/Linux run `lsof -ti :5001 | xargs kill`.
+- **The GPS button does nothing:** allow location access in your browser.
 
 ## API
 

@@ -1,4 +1,4 @@
-// Person 4: sign up, log in and log out with Firebase Authentication
+// Sign up, log in and log out with Firebase Authentication
 // (email + password).
 
 import { useState } from "react";

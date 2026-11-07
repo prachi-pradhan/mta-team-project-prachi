@@ -1,10 +1,10 @@
-"""database.py — Person 2: the SQLite database.
+"""The SQLite database.
 
 Tables:
   routes    one row per subway line  (id, name, color, ...)
   stations  one row per station      (id, name, lat, lon, routes)
   transfers where you can walk between stations to change lines (from_id, to_id, seconds)
-  shapes    one row per track path   (id, route_id, coordinates) — for the map
+  shapes    one row per track path   (id, route_id, coordinates), for the map
 
 The data is filled in by import_data.py. app.py reads it with the helper
 functions at the bottom of this file.
@@ -18,7 +18,7 @@ import sqlite3
 
 DB_PATH = os.path.join(os.path.dirname(__file__), "subway.db")
 
-# {station id: "Manhattan"} — saved by import_data.py and kept in git, so a new
+# {station id: "Manhattan"}, saved by import_data.py and kept in git, so a new
 # borough list doesn't mean rebuilding the database. Missing file = no boroughs.
 BOROUGHS_PATH = os.path.join(os.path.dirname(__file__), "station_boroughs.json")
 try:

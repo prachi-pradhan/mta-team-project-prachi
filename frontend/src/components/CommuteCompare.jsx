@@ -1,5 +1,4 @@
-// FR-04/FR-05: the same journey timed and priced by subway and on foot,
-// so you can see what you trade for the fare.
+// The same trip by subway and on foot, so you can compare time and cost.
 //
 // Every number here comes from the backend. Walking uses the real route when
 // openrouteservice is set up, else an estimate the backend labels as one.
@@ -120,7 +119,6 @@ export default function CommuteCompare({ routeColors, bare = false }) {
   // The backend also estimates a taxi, but we only show subway and walking.
   const walking = result?.walking;
 
-  // Which available mode gets there first?
   const etas = [
     bestSubway && { mode: "subway", eta: bestSubway.total_eta_min },
     walking?.available && { mode: "walking", eta: walking.total_eta_min },
@@ -136,7 +134,7 @@ export default function CommuteCompare({ routeColors, bare = false }) {
     <section className={bare ? "" : "rounded-2xl bg-white p-4 shadow-sm"}>
       {!bare && <h2 className="mb-1 text-lg font-bold">⚖️ Compare your options</h2>}
       <p className="mb-3 text-xs text-gray-500">
-        Subway and walking for the same trip — time against cost.
+        Subway and walking for the same trip: time against cost.
       </p>
 
       <div className="space-y-2">

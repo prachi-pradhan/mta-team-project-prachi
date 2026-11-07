@@ -1,4 +1,4 @@
-// App.jsx — Person 5: puts everyone's parts together into one page.
+// The main page: puts all the parts together.
 
 import { useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
@@ -62,7 +62,6 @@ export default function App() {
     };
   }, [from, to]);
 
-  // Keep track of who is logged in.
   useEffect(() => (auth ? onAuthStateChanged(auth, setUser) : undefined), []);
 
   // Load every line's colors once, for the little bullets.

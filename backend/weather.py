@@ -1,4 +1,4 @@
-"""FR-06: weather context via Open-Meteo (no weather-adjusted travel ETAs)."""
+"""Current weather from Open-Meteo. It doesn't change any travel times."""
 
 import math
 import time
@@ -13,7 +13,7 @@ SOURCE = "Open-Meteo"
 
 
 class WeatherError(Exception):
-    """Weather data is unavailable or cannot safely be treated as current."""
+    """Weather data is missing or too old to use."""
 
 
 def valid_coordinates(lat, lon):
@@ -38,7 +38,7 @@ def describe_weather(code):
 
 
 def make_cautions(code, rain_mm, snowfall_cm, wind_kmh):
-    """Qualitative cautions only; never calculate numeric travel delays."""
+    """Short warnings to show the rider. We don't guess how long weather delays a trip."""
     cautions = []
     if code in (95, 96, 99):
         cautions.append("Thunderstorms reported. Avoid exposed areas and follow official safety guidance.")
@@ -55,14 +55,18 @@ def make_cautions(code, rain_mm, snowfall_cm, wind_kmh):
     return cautions
 
 
-def _number(value, name):
-    if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value):
+def _is_number(value):
+    return isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(value)
+
+
+def _number(value):
+    if not _is_number(value):
         raise WeatherError("Weather provider returned incomplete conditions")
     return value
 
 
 def get_current_weather(lat, lon):
-    """Fetch current weather for a coordinate, with explicit provider freshness."""
+    """Current weather at a point, plus how old the reading is."""
     if not valid_coordinates(lat, lon):
         raise ValueError("Invalid coordinates")
 
@@ -88,7 +92,7 @@ def get_current_weather(lat, lon):
     current = payload["current"]
     now = int(time.time())
     timestamp = current.get("time")
-    if isinstance(timestamp, bool) or not isinstance(timestamp, (int, float)) or not math.isfinite(timestamp):
+    if not _is_number(timestamp):
         raise WeatherError("Weather source timestamp unavailable")
     timestamp = int(timestamp)
     age = now - timestamp
@@ -97,11 +101,11 @@ def get_current_weather(lat, lon):
     if age > MAX_WEATHER_AGE_SECONDS:
         raise WeatherError("Weather observations are stale")
 
-    temperature = _number(current.get("temperature_2m"), "temperature_2m")
-    rain = _number(current.get("rain"), "rain")
-    precipitation = _number(current.get("precipitation"), "precipitation")
-    snowfall = _number(current.get("snowfall"), "snowfall")
-    wind = _number(current.get("wind_speed_10m"), "wind_speed_10m")
+    temperature = _number(current.get("temperature_2m"))
+    rain = _number(current.get("rain"))
+    precipitation = _number(current.get("precipitation"))
+    snowfall = _number(current.get("snowfall"))
+    wind = _number(current.get("wind_speed_10m"))
     code = current.get("weather_code")
     if isinstance(code, bool) or not isinstance(code, int):
         raise WeatherError("Weather provider returned incomplete conditions")

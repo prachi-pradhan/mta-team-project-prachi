@@ -1,4 +1,4 @@
-"""FR-06 API tests: mocked Open-Meteo responses; no network calls."""
+"""Weather tests. Open-Meteo is faked, so these don't need the internet."""
 
 from unittest.mock import patch
 import requests
@@ -39,7 +39,7 @@ def get_weather(data, now=1800000000):
             return client.get("/api/weather?lat=40.75529&lon=-73.987495")
 
 
-def test_clear_weather_has_no_unsupported_delay():
+def test_clear_weather():
     result = get_weather(mock_payload(1800000000))
     assert result.status_code == 200
     body = result.get_json()
@@ -87,7 +87,7 @@ def test_invalid_coordinates_are_rejected():
         assert client.get("/api/weather?lat=nan&lon=0").status_code == 400
 
 
-def test_provider_failure_does_not_crash():
+def test_weather_api_down():
     with patch("weather.requests.get", side_effect=requests.Timeout("timeout")):
         with app.test_client() as client:
             response = client.get("/api/weather?lat=40.75529&lon=-73.987495")
@@ -95,7 +95,7 @@ def test_provider_failure_does_not_crash():
     assert response.get_json()["available"] is False
 
 
-def test_future_provider_timestamp_is_unavailable():
+def test_future_timestamp_is_unavailable():
     result = get_weather(mock_payload(1800000000, time=1800000400))
     assert result.status_code == 503
     assert "future" in result.get_json()["reason"]

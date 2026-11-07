@@ -1,11 +1,10 @@
-// FR-06: current conditions where you are travelling, plus the MTA-independent
-// cautions the backend derives from them (slippery platforms, reduced visibility).
-// The backend never turns weather into a numeric delay, so neither do we.
+// Current weather where you're traveling, plus the warnings the backend comes up
+// with (slippery sidewalks, low visibility). We don't guess delays from the weather.
 
 import { useEffect, useState } from "react";
 import { getWeather } from "../api.js";
 
-// Union Sq: a sensible default before you pick a station.
+// Shown until you pick a station (this is near Union Sq).
 const DEFAULT_PLACE = { name: "Midtown Manhattan", lat: 40.7348, lon: -73.9907 };
 
 // Open-Meteo WMO codes -> an emoji, so the card reads at a glance.
@@ -79,7 +78,7 @@ export default function WeatherCard({ station, bare = false }) {
     );
   }
 
-  // The provider was unreachable or its data was stale: say so plainly.
+  // Open-Meteo is down or its data is too old, so just tell the user.
   if (!data.available) {
     return (
       <section className={bare ? "" : "rounded-2xl bg-white p-4 shadow-sm"}>

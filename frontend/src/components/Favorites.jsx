@@ -1,4 +1,4 @@
-// Person 4: the list of saved stations and saved trips.
+// The list of saved stations and saved trips.
 // Click a station to see its trains, or a trip to plan it again with live trains.
 
 import { X } from "lucide-react";

@@ -1,4 +1,4 @@
-"""dijkstra.py — the fastest route between two stations, with Dijkstra's algorithm.
+"""Fastest route between two stations using Dijkstra's algorithm.
 
 The subway as a graph. A node is a station, either on the platform or on a line:
   (station, None)   standing on the platform at that station

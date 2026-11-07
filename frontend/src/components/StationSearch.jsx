@@ -1,5 +1,4 @@
-// Person 3 (search bar) + Person 4 (station search features):
-// type a station name, or press the locate button to find the stations closest to you.
+// Station search: type a station name, or press the locate button to find the stations closest to you.
 // "My location" lives in App.jsx (useMyLocation) so the map shows the same thing.
 
 import { useEffect, useState } from "react";

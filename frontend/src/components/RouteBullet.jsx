@@ -8,7 +8,7 @@ const SIZES = {
 };
 
 export default function RouteBullet({ route, color = "#808183", textColor = "#FFFFFF", size = "md" }) {
-  // "6X" (6 express) is shown as "6" — the MTA draws it as a diamond, we keep it simple.
+  // "6X" (6 express) is shown as "6". The MTA draws it as a diamond, we keep it simple.
   const label = route.replace("X", "");
 
   return (

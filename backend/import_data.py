@@ -1,4 +1,4 @@
-"""import_data.py — Person 2: fill the database with MTA station and route data.
+"""Fill the database with MTA station and route data.
 
 Run once (takes about a minute):   python import_data.py
 
@@ -109,7 +109,7 @@ def main():
 
     # Each line has many shapes that mostly lie on top of each other (one per
     # direction and service pattern). To keep the map fast we only keep a shape
-    # if it adds new track — like a branch — that the kept shapes don't cover.
+    # if it adds new track (like a branch) that the kept shapes don't cover.
     shapes_of_route = {}
     for shape_id, points in points_of_shape.items():
         if shape_id in route_of_shape:  # skip shapes no trip uses

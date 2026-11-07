@@ -1,4 +1,4 @@
-// Person 3: the service status dashboard — every line and how it's running.
+// Service status dashboard: every line and how it's running.
 // Click a line to see its alerts in a popup.
 
 import { useEffect, useState } from "react";
@@ -33,7 +33,6 @@ export default function StatusDashboard({ bare = false }) {
   const [error, setError] = useState(null);
   const [openRoute, setOpenRoute] = useState(null); // the line whose alerts are showing
 
-  // Load the status now, then refresh every minute.
   useEffect(() => {
     function load() {
       getStatus()
@@ -48,7 +47,6 @@ export default function StatusDashboard({ bare = false }) {
     return () => clearInterval(timer);
   }, []);
 
-  // Press Esc to close the popup.
   useEffect(() => {
     function onKey(e) {
       if (e.key === "Escape") setOpenRoute(null);

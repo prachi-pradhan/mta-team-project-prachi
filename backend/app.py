@@ -241,7 +241,7 @@ def compare_commute():
             "error": "Start and destination are the same station"
         }), 400
 
-    # --- Subway journey planning and MTA source freshness ---
+    # --- subway ---
     subway_error = None
     subway_options = []
     trip_freshness = {
@@ -257,7 +257,7 @@ def compare_commute():
         subway_options = mta.plan_trip(
             from_id, to_id, transfers, database.get_station_names()
         )
-        # Reads cached feed headers; does not request MTA feeds again.
+        # Uses the cached feeds, so this doesn't download anything.
         trip_freshness = mta.get_trip_feed_freshness()
         if not trip_freshness["fresh"]:
             subway_options = []
@@ -271,7 +271,7 @@ def compare_commute():
             "MTA feed timestamp is in the future",
         ) else "MTA service temporarily unavailable"
 
-    # --- Route-relevant service alerts ---
+    # --- alerts on this trip ---
     route_ids = list({
         leg["route"]
         for option in subway_options
@@ -297,7 +297,7 @@ def compare_commute():
         option["fare_usd"] = 3.00
         option["fare_source"] = "MTA standard subway base fare"
 
-    # --- Walking route ---
+    # --- walking ---
     try:
         walking = routing.get_route(
             start, end, "foot-walking"
@@ -325,7 +325,7 @@ def compare_commute():
         walking = routing.estimate_walk(start, end)
         walking["available"] = True
 
-    # --- Driving route ---
+    # --- driving ---
     try:
         driving = routing.get_route(
             start, end, "driving-car"
@@ -347,7 +347,7 @@ def compare_commute():
             "reason": "Driving route temporarily unavailable",
         }
 
-    # --- Taxi fare and ETA ---
+    # --- taxi ---
     pickup_minutes = 5
     taxi_fare = None
     taxi_total_minutes = None
@@ -363,7 +363,7 @@ def compare_commute():
             coordinates
         )
 
-        # Do not include unverified congestion charges.
+        # Congestion charges stay off: the zone checks are only a rough guess.
         taxi_fare = taxi.estimate_fare(
             driving["distance_m"],
             driving["duration_seconds"],
@@ -385,10 +385,10 @@ def compare_commute():
             1
         )
 
-        # Keep driving route coordinates internal.
+        # The site doesn't need the driving coordinates.
         driving.pop("coordinates", None)
 
-    # --- Final comparison response ---
+    # --- put it all together ---
     return jsonify({
         "from": start,
         "to": end,
@@ -425,7 +425,7 @@ def compare_commute():
         "updated_at": int(time.time()),
     })
 
-# --- FR-06: current weather and contextual cautions ---
+# --- weather ---
 
 @app.get("/api/weather")
 def current_weather():

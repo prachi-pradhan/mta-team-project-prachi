@@ -1,4 +1,4 @@
-// Person 4: connect to Firebase.
+// Connect to Firebase.
 // The settings come from frontend/.env (see .env.example).
 // If they're missing, `auth` is null and the site works without login.
 

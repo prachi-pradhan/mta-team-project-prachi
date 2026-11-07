@@ -1,4 +1,4 @@
-// Person 3: the live subway map — lines, stations and trains.
+// The live subway map: lines, stations and trains.
 // Uses Leaflet, a free map library. Click a station to see its trains.
 // Click a line (or its bullet under the map) to highlight just that line.
 
@@ -95,7 +95,6 @@ const easeInOut = (t) => (t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2);
 const myLocationIcon = L.divIcon({ className: "", html: `<div class="my-location"></div>`, iconSize: [18, 18], iconAnchor: [9, 9] });
 const closestIcon = L.divIcon({ className: "", html: `<div class="closest-station"></div>`, iconSize: [18, 18], iconAnchor: [9, 9] });
 
-// The marker drawn on top of the selected station.
 const selectedIcon = L.divIcon({
   className: "", // removes Leaflet's default white box
   html: `<div class="selected-station"></div>`,
@@ -178,7 +177,6 @@ export default function SubwayMap({ selectedStation, onSelectStation, myLocation
     const journeyLayer = L.layerGroup().addTo(m); // the fastest route between From and To
     layers.current = { stationLayer, highlightLayer, myLocationLayer, journeyLayer };
 
-    // Click empty map: stop highlighting.
     m.on("click", () => setSelectedLine(null));
 
     // Once the user drags, scrolls or pinches the map, never move it for them again
@@ -197,7 +195,6 @@ export default function SubwayMap({ selectedStation, onSelectStation, myLocation
     // We keep the same marker for each train, so we can slide it instead of redrawing it.
     const trains = new Map();
 
-    // Resize every station dot to match the zoom level.
     function resizeStations() {
       const r = stationRadius(m.getZoom());
       stationLayer.eachLayer((dot) => dot.setRadius(r));
@@ -276,13 +273,11 @@ export default function SubwayMap({ selectedStation, onSelectStation, myLocation
       }
     }
 
-    // When the zoom changes, resize the stations and restyle the trains.
     m.on("zoomend", () => {
       resizeStations();
       drawTrains();
     });
 
-    // Download fresh train positions, then move the trains.
     async function loadTrains() {
       try {
         const data = await getSubwayTrains();
@@ -295,7 +290,6 @@ export default function SubwayMap({ selectedStation, onSelectStation, myLocation
 
     async function load() {
       // 1. The lines, in their official colors.
-      // Click a line to highlight it.
       const routes = await getSubwayRoutes();
       layers.current.routeLayer = L.geoJSON(routes, {
         style: (f) => ({ color: f.properties.color, weight: 4, opacity: 0.9, lineCap: "round" }),
@@ -335,7 +329,6 @@ export default function SubwayMap({ selectedStation, onSelectStation, myLocation
       }
       stationLayer.addTo(m);
 
-      // Fit the whole subway system on screen, whatever the screen size.
       m.fitBounds(L.latLngBounds(Object.values(stations.current)), { padding: [20, 20] });
 
       // 3. The trains, on top. Refreshed every 10 seconds.
@@ -345,7 +338,6 @@ export default function SubwayMap({ selectedStation, onSelectStation, myLocation
     }
     load().catch(() => {});
 
-    // Clean up when the component goes away.
     return () => {
       stopped = true;
       clearInterval(timer);
@@ -357,7 +349,6 @@ export default function SubwayMap({ selectedStation, onSelectStation, myLocation
   // When a station is picked (from the map, search or favorites):
   // zoom to it and mark it with a pulsing ring and its name.
   useEffect(() => {
-    // Remove the ring from the previously selected station.
     if (selectedMarker.current) {
       selectedMarker.current.remove();
       selectedMarker.current = null;
@@ -385,7 +376,6 @@ export default function SubwayMap({ selectedStation, onSelectStation, myLocation
     selectedMarker.current = marker;
   }, [selectedStation]);
 
-  // Light / dark background map.
   useEffect(() => {
     tiles.current.getContainer().style.filter = TILE_FILTER[theme];
   }, [theme]);
@@ -472,7 +462,6 @@ export default function SubwayMap({ selectedStation, onSelectStation, myLocation
     }
   }, [position, nearby]);
 
-  // Zoom to fit the user and their closest station.
   function showMeAndClosest() {
     const here = [position.lat, position.lon];
     const closest = nearby[0];

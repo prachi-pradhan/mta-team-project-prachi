@@ -5,7 +5,7 @@
 import { useEffect, useRef, useState } from "react";
 import { getNearbyStations } from "./api.js";
 
-// Rough distance in meters between two points — plenty accurate inside one city.
+// Rough distance in meters between two points. Close enough inside one city.
 function metersBetween(a, b) {
   const dLat = (b.lat - a.lat) * 111320;
   const dLon = (b.lon - a.lon) * 111320 * Math.cos((a.lat * Math.PI) / 180);

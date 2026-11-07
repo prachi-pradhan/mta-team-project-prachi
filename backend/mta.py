@@ -1,4 +1,4 @@
-"""mta.py — Person 1: talking to the MTA's real-time feeds.
+"""Talks to the MTA's real-time feeds.
 
 Two kinds of live data (both free, no API key):
   - Train arrivals: 8 "GTFS-RT" feeds in protobuf (binary) format
@@ -127,9 +127,7 @@ def get_trip_feed_freshness():
     return _train_feed_freshness(feeds)
 
 
-# ---------------------------------------------------------------------------
-# Trains (for the map)
-# ---------------------------------------------------------------------------
+# --- trains (for the map) ---
 
 def get_trains(stations_by_id, routes=None):
     """Every train that's running, placed at its next stop.
@@ -175,9 +173,7 @@ def get_trains(stations_by_id, routes=None):
     return trains
 
 
-# ---------------------------------------------------------------------------
-# Arrivals
-# ---------------------------------------------------------------------------
+# --- arrivals ---
 
 def get_arrivals(station_id, routes, stop_names):
     """Upcoming trains at one station, soonest first.
@@ -219,9 +215,7 @@ def get_arrivals(station_id, routes, stop_names):
     return arrivals
 
 
-# ---------------------------------------------------------------------------
-# Service status
-# ---------------------------------------------------------------------------
+# --- service status ---
 
 def _status_of(alert_type):
     """Turn the MTA's many alert types into 4 simple statuses."""
@@ -259,7 +253,7 @@ def get_status(route_ids):
         texts = alert.get("header_text", {}).get("translation", [])
         text = next((t["text"] for t in texts if t.get("language") == "en"), "")
 
-        # Preserve affected routes, stops, and directions for future trip matching.
+        # Keep these so we can match alerts to a trip later.
         affected_entities = [
             {
                 "route_id": e.get("route_id"),
@@ -279,7 +273,6 @@ def get_status(route_ids):
             if route not in result:
                 continue
 
-            # Store only the affected entities for this route.
             route_entities = [
                 e for e in affected_entities
                 if e["route_id"] == route
@@ -299,9 +292,7 @@ def get_status(route_ids):
     return result
 
 
-# ---------------------------------------------------------------------------
-# Trip planner
-# ---------------------------------------------------------------------------
+# --- trip planner ---
 
 DEFAULT_TRANSFER_SECONDS = 180  # 3 minutes to change trains if the MTA doesn't say
 
@@ -452,9 +443,7 @@ def plan_trip(from_id, to_id, transfers, stop_names, max_options=5):
             break
     return best
 
-# ---------------------------------------------------------------------------
-# Journey-specific service alert matching
-# ---------------------------------------------------------------------------
+# --- matching alerts to a trip ---
 
 def match_trip_alerts(leg, alerts):
     """Find service alerts potentially affecting one subway journey leg."""
@@ -481,17 +470,14 @@ def match_trip_alerts(leg, alerts):
             continue
 
         for entity in entities:
-            # Check the subway route.
             if entity.get("route_id") != route:
                 continue
 
-            # Check direction, if specified.
             alert_direction = entity.get("direction_id")
 
             if alert_direction is not None and alert_direction != direction_id:
                 continue
 
-            # Check affected stations, if specified.
             alert_stop = entity.get("stop_id")
 
             if alert_stop is not None and alert_stop not in stop_ids:

@@ -1,4 +1,4 @@
-"""Backend tests — Person 5. Run from the backend folder:   pytest
+"""Backend tests. Run from the backend folder:   pytest
 
 These tests don't need the internet: they use a tiny fake database and
 replace the MTA calls with fake data.

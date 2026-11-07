@@ -7,7 +7,7 @@ function startingTheme() {
     const saved = localStorage.getItem("theme");
     if (saved === "light" || saved === "dark") return saved;
   } catch {
-    // Private browsing can block storage — fall back to the computer's setting.
+    // Private browsing can block storage, so fall back to the computer's setting.
   }
   return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 }

@@ -1,4 +1,4 @@
-"""Local taxi fare tests; no requests to TLC, MTA or openrouteservice."""
+"""Taxi fare tests. These don't need the internet."""
 
 from datetime import datetime
 from zoneinfo import ZoneInfo
@@ -69,7 +69,7 @@ def test_explicit_congestion_charges_change_fare_by_325():
     assert with_charges["included_surcharges_usd"]["mta_congestion"] == 0.75
 
 
-def test_approximate_zones_do_not_claim_false():
+def test_zone_checks_are_true_or_none():
     assert taxi.crosses_nys_congestion_zone([]) is None
     assert taxi.crosses_mta_congestion_zone([]) is None
     coords = [[-73.987495, 40.75529], [-73.972323, 40.793919]]
